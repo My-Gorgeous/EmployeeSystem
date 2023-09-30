@@ -156,12 +156,12 @@ void saveAs(Database& path, Formal* f, Informal* i) {
 	cout << "打开" << path << "成功..." << endl;
 
 	Formal* pf = f->next;
-	Informal* pi = i->next;
 	while (pf) {
 		pf->writeToFile(out);
 		pf = pf->next;
 	}
 
+	Informal* pi = i->next;
 	while (pi) {
 		pi->writeToFile(out);
 		pi = pi->next;
@@ -180,7 +180,7 @@ void staffList(ifstream& in, Formal*& f, Informal*& i) {
 	while (!in.eof()) {
 		char ch;
 		in >> ch;
-		//分两种情况，在文件存储时再对应数据前加f/i，便于识别数据类型
+		// 分两种情况，在文件存储时再对应数据前加f/i，便于识别数据类型
 		if (!in.eof() && ch == 'f') {
 			Formal* p = new Formal();
 			in.clear();
@@ -192,8 +192,6 @@ void staffList(ifstream& in, Formal*& f, Informal*& i) {
 				pf = p;
 				f->next = pf;
 			}
-
-			in.get();
 		} else if (!in.eof() && ch == 'i') {
 			Informal* p = new Informal();
 			in.clear();
@@ -205,9 +203,8 @@ void staffList(ifstream& in, Formal*& f, Informal*& i) {
 				pi = p;
 				i->next = pi;
 			}
-
-			in.get();
 		}
+		in.get();
 	}
 }
 
@@ -231,15 +228,19 @@ void clearList(Formal*& f, Informal*& i) {
 // 输入员工信息
 void inputStaff(Formal*& f, Informal*& i) {
 	Database path = "";
-	openFile(path, f, i);//打开文件
+	openFile(path, f, i);
 	changed = true;
-	Formal* pf = f;
-	Informal* pi = i;
 
-	while (pf->next)
+	Formal* pf = f;
+	while (pf->next) {
 		pf = pf->next;
-	while (pi->next)
+	}
+
+	Informal* pi = i;
+	while (pi->next) {
 		pi = pi->next;
+	}
+
 	// 设置死循环，可以一直输入员工信息
 	while (1) {
 		cout << "职工: f->正式工, i->临时工, q->退出" << endl;
@@ -254,7 +255,6 @@ void inputStaff(Formal*& f, Informal*& i) {
 				f->next = p;
 				pf = p;
 			}
-
 			cout << "输入成功!" << endl;
 		} else if (staff == 'i') {
 			Informal* p = new Informal();
@@ -353,28 +353,22 @@ void edit(Formal* f, Informal* i) {
 }
 
 // 计算工资总额和平均工资
-void count(Formal* f, Informal* i)
-{
+void count(Formal* f, Informal* i) {
 	Database path = "";
 	Formal* pf = f;
 	Informal* pi = i;
 	openFile(path, f, i);
-	if (pf->next == NULL && pi->next == NULL)
-	{
+	if (pf->next == NULL && pi->next == NULL) {
 		cout << "当前未读取任何信息..." << endl;
-	}
-	else
-	{
+	} else {
 		int num = 0;
 		double salsum = 0;
 		double average;
-		while (pf = pf->next)
-		{
+		while (pf = pf->next) {
 			salsum += pf->salary;
 			num++;
 		}
-		while (pi = pi->next)
-		{
+		while (pi = pi->next) {
 			salsum += pi->salary;
 			num++;
 		}
@@ -387,19 +381,16 @@ void count(Formal* f, Informal* i)
 			<< "└─────────────┴─────────────┘" << endl;
 	}
 }
-//退出系统
-void quit(Database& path, Formal* f, Informal* i)
-{
-	if (changed && !saved)
-	{
-		if (path._Equal("") == true)
-		{
+
+// 退出系统
+void quit(Database& path, Formal* f, Informal* i) {
+	if (changed && !saved) {
+		if (path._Equal("") == true) {
 			cout << "当前未打开文件..." << endl << "请输入文件名: ";
 			cin >> path;
 		}
 
-		if (f->next || i->next)
-		{
+		if (f->next || i->next) {
 			cout << "是否需要保存数据? (y/n)" << endl;
 			char option = getInput();
 
@@ -417,27 +408,23 @@ void quit(Database& path, Formal* f, Informal* i)
 	system("pause");
 	exit(0);
 }
-//选择删除方式
-void del(Formal* f, Informal* i, Formal*& rf, Informal*& ri)
-{
+
+// 选择删除方式
+void del(Formal* f, Informal* i, Formal*& rf, Informal*& ri) {
 	void logicdelete(Formal*, Informal*, Formal*, Informal*, int);
 	void physicdelete(Formal*, Informal*, int);
 	Database path = "";
 	changed = true;
 	openFile(path, f, i);
 
-	if (!f->next && !i->next)
-	{
+	if (!f->next && !i->next) {
 		cout << "当前未输入信息！" << endl;
 		return;
-	}
-	else
-	{
+	} else {
 		cout << "以下是正式员工信息:" << endl;
 		printFormalTableHead();
 		Formal* pf = f->next;
-		while (pf)
-		{
+		while (pf) {
 			pf->display();
 			pf = pf->next;
 		}
@@ -445,77 +432,60 @@ void del(Formal* f, Informal* i, Formal*& rf, Informal*& ri)
 		cout << "以下是临时员工信息:" << endl;
 		printInformalTableHead();
 		Informal* pi = i->next;
-		while (pi)
-		{
+		while (pi) {
 			pi->display();
 			pi = pi->next;
 		}
 
-		while (1)
-		{
+		while (1) {
 			int id;
 			cout << "a->逻辑删除, b->物理删除, q->退出" << endl;
 			char ch = getInput();
-			if (ch == 'A' || ch == 'a')
-			{
+			if (ch == 'A' || ch == 'a') {
 				cout << "以下删除可恢复：" << endl;
 				cout << "请输入要删除员工的编号：" << endl;
 				cin >> id;
 				logicdelete(f, i, rf, ri, id);
-			}
-			else if (ch == 'B' || ch == 'b')
-			{
+			} else if (ch == 'B' || ch == 'b') {
 				cout << "以下删除不可恢复！是否继续（Y/N）" << endl;
 				char option = getInput();
-				if (option == 'y' || option == 'Y')
-				{
+				if (option == 'y' || option == 'Y') {
 					cout << "请输入要删除员工的编号：" << endl;
 					cin >> id;
 					physicdelete(f, i, id);
-				}
-				else if (option == 'n' || option == 'N')
-				{
+				} else if (option == 'n' || option == 'N') {
 					cout << "退出删除..." << endl;
 					return;
 				}
-			}
-			else if (ch == 'Q' || ch == 'q')
-			{
+			} else if (ch == 'Q' || ch == 'q') {
 				cout << "是否保存修改（Y/N）：";
 				char yorn = getInput();
-				if (yorn == 'Y' || yorn == 'y')
-				{
+				if (yorn == 'Y' || yorn == 'y') {
 					directSave(path, f, i);
 					cout << "保存成功！" << endl << "退出删除..." << endl;
 					return;
-				}
-				else if (yorn == 'N' || yorn == 'n')
-				{
+				} else if (yorn == 'N' || yorn == 'n') {
 					cout << "退出删除..." << endl;
 					return;
 				}
 			}
 		}
-
-
-
 	}
 }
-//逻辑删除（删除后可恢复）
-void logicdelete(Formal* f, Informal* i, Formal* rf, Informal* ri, int id)
-{
 
+// 逻辑删除（删除后可恢复）
+void logicdelete(Formal* f, Informal* i, Formal* rf, Informal* ri, int id) {
 	Formal* pf = f;
 	Formal* prf = rf;
 	Informal* pi = i;
 	Informal* pri = ri;
 
-	while (pf)
-	{
-		if (pf->next && pf->next->id == id)
-		{
-			while (prf->next != NULL)		//找到恢复链表的最后一项
+	while (pf) {
+		if (pf->next && pf->next->id == id) {
+			// 找到恢复链表的最后一项
+			while (prf->next != NULL) {
 				prf = prf->next;
+			}
 			prf->next = pf->next;
 			pf->next = pf->next->next;
 			prf->next->next = NULL;
@@ -527,10 +497,8 @@ void logicdelete(Formal* f, Informal* i, Formal* rf, Informal* ri, int id)
 		pf = pf->next;
 	}
 
-	while (pi)
-	{
-		if (pi->next && pi->next->id == id)
-		{
+	while (pi) {
+		if (pi->next && pi->next->id == id) {
 			while (pri->next != NULL)
 				pri = pri->next;
 			pri->next = pi->next;
@@ -547,16 +515,12 @@ void logicdelete(Formal* f, Informal* i, Formal* rf, Informal* ri, int id)
 	if (!pi && !pf)
 		cout << "未找到匹配序号！\n";
 }
-//物理删除（删除后不可恢复）
-void physicdelete(Formal* f, Informal* i, int id)
-{
 
+// 物理删除（删除后不可恢复）
+void physicdelete(Formal* f, Informal* i, int id) {
 	Formal* pf = f;
-	Informal* pi = i;
-	while (pf)
-	{
-		if (pf->next && pf->next->id == id)
-		{
+	while (pf) {
+		if (pf->next && pf->next->id == id) {
 			Formal* p = pf->next;
 			pf->next = pf->next->next;
 
@@ -564,14 +528,12 @@ void physicdelete(Formal* f, Informal* i, int id)
 			cout << "物理删除成功!" << endl;
 			break;
 		}
-
 		pf = pf->next;
 	}
 
-	while (pi)
-	{
-		if (pi->next && pi->next->id == id)
-		{
+	Informal* pi = i;
+	while (pi) {
+		if (pi->next && pi->next->id == id) {
 			Informal* p = pi->next;
 			pi->next = pi->next->next;
 
@@ -579,49 +541,41 @@ void physicdelete(Formal* f, Informal* i, int id)
 			cout << "物理删除成功!" << endl;
 			break;
 		}
-
 		pi = pi->next;
 	}
 
 	if (pi == NULL && pf == NULL)
 		cout << "未找到匹配序号！\n";
 }
-//恢复
-void recover(Formal* f, Informal* i, Formal* rf, Informal* ri)
-{
+
+// 恢复
+void recover(Formal* f, Informal* i, Formal* rf, Informal* ri) {
 	void recoverFormal(Formal * f, Formal * rpf);
 	void recoverInformal(Informal * i, Informal * rpi);
 	Database path = "";
 	changed = true;
 	openFile(path, f, i);
 
-	if (rf->next == NULL && ri->next == NULL)
-	{
+	if (rf->next == NULL && ri->next == NULL) {
 		cout << "当前无可恢复的信息..." << endl;
-	}
-	else
-	{
+	} else {
 		int id;
-		Formal* qf = rf;
-		Informal* qi = ri;
 		cout << "以下信息可恢复：" << endl;
 
-		if (rf->next)
-		{
+		Formal* qf = rf;
+		if (rf->next) {
 			cout << "以下是正式员工(可恢复)的信息:" << endl;
 			printFormalTableHead();
-			while (qf = qf->next)
-			{
+			while (qf = qf->next) {
 				qf->display();
 			}
 		}
 
-		if (ri->next)
-		{
+		Informal* qi = ri;
+		if (ri->next) {
 			cout << "以下是临时员工(可恢复)的信息:" << endl;
 			printInformalTableHead();
-			while (qi = qi->next)
-			{
+			while (qi = qi->next) {
 				qi->display();
 			}
 		}
@@ -634,85 +588,69 @@ void recover(Formal* f, Informal* i, Formal* rf, Informal* ri)
 		Formal* rpf;
 		Informal* rpi;
 
-		while (qf)
-		{
-			if (qf->next && qf->next->id == id)
-			{
+		while (qf) {
+			if (qf->next && qf->next->id == id) {
 				rpf = qf->next;
 				qf->next = qf->next->next;
 				rpf->next = NULL;
 				recoverFormal(f, rpf);
 				break;
 			}
-
 			qf = qf->next;
 		}
 
-		while (qi)
-		{
-			if (qi->next && qi->next->id == id)
-			{
+		while (qi) {
+			if (qi->next && qi->next->id == id) {
 				rpi = qi->next;
 				qi->next = qi->next->next;
 				rpi->next = NULL;
 				recoverInformal(i, rpi);
 				break;
 			}
-
 			qi = qi->next;
 		}
-		if (qf == NULL && qi == NULL)
-		{
+
+		if (qf == NULL && qi == NULL) {
 			cout << "回收站无此员工信息！" << endl;
 			return;
-		}
-		else
-		{
-			cout << "恢复员工信息成功！" << endl << "是否保存修改（Y/N）：";
+		} else {
+			cout << "恢复员工信息成功！\n是否保存修改（Y/N）：";
 			char option = getInput();
-			if (option == 'Y' || option == 'y')
-			{
+			if (option == 'Y' || option == 'y') {
 				directSave(path, f, i);
-				cout << "保存成功！" << endl << "退出恢复..." << endl;
+				cout << "保存成功！\n退出恢复..." << endl;
 				return;
-			}
-			else if (option == 'N' || option == 'n')
-			{
+			} else if (option == 'N' || option == 'n') {
 				cout << "退出恢复..." << endl;
 				return;
 			}
 		}
 	}
 }
-//恢复正式员工信息
-void recoverFormal(Formal* f, Formal* rpf)
-{
+
+// 恢复正式员工信息
+void recoverFormal(Formal* f, Formal* rpf) {
 	Formal* pf = f;
 	while (pf->next != NULL)
 		pf = pf->next;
 	pf->next = rpf;
-
 }
-//恢复临时工信息
-void recoverInformal(Informal* i, Informal* rpi)
-{
+
+// 恢复临时工信息
+void recoverInformal(Informal* i, Informal* rpi) {
 	Informal* pi = i;
 	while (pi->next != NULL)
 		pi = pi->next;
 	pi->next = rpi;
 }
-//打开回收站
-void openRecoverFile(Formal*& f, Informal*& i)
-{
+
+// 打开回收站
+void openRecoverFile(Formal*& f, Informal*& i) {
 	string str = "it_is_a_recover_file.txt";
 	ifstream in(str, ios::in);
 
-	if (!in.is_open())
-	{
+	if (!in.is_open()) {
 		return;
-	}
-	else
-	{
 	}
 
 	clearList(f, i);
@@ -720,22 +658,20 @@ void openRecoverFile(Formal*& f, Informal*& i)
 	staffList(in, f, i);
 	in.close();
 }
-//保存回收站文件，这里采用退出时自动保存的方法
-void saveRecoverFile(Formal*& f, Informal*& i)
-{
+
+// 保存回收站文件，这里采用退出时自动保存的方法
+void saveRecoverFile(Formal*& f, Informal*& i) {
 	string str = "it_is_a_recover_file.txt";
 	Formal* pf = f->next;
 	Informal* pi = i->next;
 	ofstream out(str, ios::out);
 
-	while (pf)
-	{
+	while (pf) {
 		pf->writeToFile(out);
 		pf = pf->next;
 	}
 
-	while (pi)
-	{
+	while (pi) {
 		pi->writeToFile(out);
 		pi = pi->next;
 	}
@@ -743,20 +679,18 @@ void saveRecoverFile(Formal*& f, Informal*& i)
 	out.clear();
 	out.close();
 }
-//按要求查询员工信息
+
+// 按要求查询员工信息
 void search(Formal* f, Informal* i) {
 	Database path = "";
 	openFile(path, f, i);
-	while (1)
-	{
+	while (1) {
 		Formal* pf = f->next;
 		Informal* pi = i->next;
 		cout << "请选择查询的关键词：" << endl << "a.工号" << endl << "b.姓名" << endl << "c.实发工资" << endl;
 		char choice = getInput();
 
-		switch (choice)
-		{
-			//按编号查询
+		switch (choice) {
 		case 'a':
 		{
 			bool flag1 = false;
@@ -765,10 +699,8 @@ void search(Formal* f, Informal* i) {
 			cout << "请输入需要查询的工号: ";
 			cin >> ikey;
 
-			while (pf)
-			{
-				if (pf->id == ikey)
-				{
+			while (pf) {
+				if (pf->id == ikey) {
 					flag1 = true;
 					printFormalTableHead();
 					pf->displayOnce();
@@ -776,10 +708,8 @@ void search(Formal* f, Informal* i) {
 				pf = pf->next;
 			}
 
-			while (pi)
-			{
-				if (pi->id == ikey)
-				{
+			while (pi) {
+				if (pi->id == ikey) {
 					flag2 = true;
 					printInformalTableHead();
 					pi->displayOnce();
@@ -787,13 +717,11 @@ void search(Formal* f, Informal* i) {
 				pi = pi->next;
 			}
 
-			if (flag1 == false && flag2 == false)
-			{
+			if (flag1 == false && flag2 == false) {
 				cout << "所有员工中不存在编号为" << ikey << "的职工..." << endl;
 			}
 			break;
 		}
-		//按姓名查询
 		case 'b':
 		{
 			bool flag1 = false;
@@ -802,10 +730,8 @@ void search(Formal* f, Informal* i) {
 			cout << "请输入需要查询的姓名: ";
 			cin >> nkey;
 
-			while (pf)
-			{
-				if (pf->name._Equal(nkey))
-				{
+			while (pf) {
+				if (pf->name._Equal(nkey)) {
 					flag1 = true;
 					printFormalTableHead();
 					pf->displayOnce();
@@ -813,10 +739,8 @@ void search(Formal* f, Informal* i) {
 				pf = pf->next;
 			}
 
-			while (pi)
-			{
-				if (pi->name._Equal(nkey))
-				{
+			while (pi) {
+				if (pi->name._Equal(nkey)) {
 					flag2 = true;
 					printInformalTableHead();
 					pi->displayOnce();
@@ -824,8 +748,7 @@ void search(Formal* f, Informal* i) {
 				pi = pi->next;
 			}
 
-			if (flag1 == false && flag2 == false)
-			{
+			if (flag1 == false && flag2 == false) {
 				cout << "所有员工中不存在编号为" << nkey << "的职工..." << endl;
 			}
 			break;
@@ -839,10 +762,8 @@ void search(Formal* f, Informal* i) {
 			cout << "请输入需要查询的实发工资: ";
 			cin >> skey;
 
-			while (pf)
-			{
-				if (pf->salary == skey)
-				{
+			while (pf) {
+				if (pf->salary == skey) {
 					flag1 = true;
 					printFormalTableHead();
 					pf->displayOnce();
@@ -850,10 +771,8 @@ void search(Formal* f, Informal* i) {
 				pf = pf->next;
 			}
 
-			while (pi)
-			{
-				if (pi->salary == skey)
-				{
+			while (pi) {
+				if (pi->salary == skey) {
 					flag2 = true;
 					printInformalTableHead();
 					pi->displayOnce();
@@ -861,8 +780,7 @@ void search(Formal* f, Informal* i) {
 				pi = pi->next;
 			}
 
-			if (flag1 == false && flag2 == false)
-			{
+			if (flag1 == false && flag2 == false) {
 				cout << "所有员工中不存在实发工资为" << skey << "的职工..." << endl;
 			}
 			break;
